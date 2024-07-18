@@ -1,0 +1,317 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Country {
+  id String @id @default(uuid())
+
+  name       String @unique
+  short_code String @unique @db.Char(2)
+  code       String @unique @db.Char(3)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  states State[]
+  cities City[]
+
+  @@index([name], type: Hash)
+}
+
+model State {
+  id String @id @default(uuid())
+
+  name String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  country    Country @relation(fields: [country_id], references: [id])
+  country_id String
+
+  cities City[]
+
+  @@index([name], type: Hash)
+}
+
+model City {
+  id String @id @default(uuid())
+
+  name String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  country    Country @relation(fields: [country_id], references: [id])
+  country_id String
+  state      State   @relation(fields: [state_id], references: [id])
+  state_id   String
+
+  users User[]
+
+  stores Store[]
+
+  @@index([name], type: Hash)
+}
+
+model User {
+  id String @id @default(uuid())
+
+  email    String @unique
+  password String
+
+  first_name  String
+  middle_name String?
+  last_name   String
+
+  role Role
+
+  dob DateTime
+
+  is_active Boolean @default(true)
+
+  title     Title
+  gender    Gender  @default(RATHER_NOT_SAY)
+  telephone String? @unique
+
+  image_uri String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  city    City?   @relation(fields: [city_id], references: [id])
+  city_id String?
+
+  user_access_rights   UserAccessRight @relation(fields: [user_access_right_id], references: [id])
+  user_access_right_id String          @unique
+
+  user_meta_data UserMetaData[]
+  stores         Store[]
+
+  @@index([first_name])
+  @@index([telephone], type: Hash)
+}
+
+model UserAccessRight {
+  id String @id @default(uuid())
+
+  category_module   Boolean @default(false)
+  product_module    Boolean @default(false)
+  attribute_module  Boolean @default(false)
+  cms_module        Boolean @default(false)
+  newsletter_module Boolean @default(false)
+
+  user User?
+}
+
+model UserMetaData {
+  id String @id @default(uuid())
+
+  ip_address  String?
+  client      String?
+  os          String?
+  last_access DateTime?
+
+  created_at DateTime @default(now())
+
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String
+}
+
+model Store {
+  id String @id @default(uuid())
+
+  title       String  @unique
+  description String?
+  slug        String  @unique
+
+  // rent_per_month Float
+  // minimum_order
+  // commission_percentage Float
+
+  vat_number          String @unique
+  registration_number String @unique
+
+  logo_primary   String
+  logo_secondary String?
+
+  icon_primary   String
+  icon_secondary String?
+
+  banner_primary   String
+  banner_secondary String?
+
+  side_banner_primary   String?
+  side_banner_Secondary String?
+
+  telephone String
+  fax       String
+
+  address_primary   String
+  address_secondary String
+
+  is_active Boolean @default(true)
+
+  zip String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  owner    User   @relation(fields: [owner_id], references: [id])
+  owner_id String
+
+  city    City   @relation(fields: [city_id], references: [id])
+  city_id String
+
+  // mandatory - check mandatory vs optional in Prisma Docs
+  // https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/one-to-one-relations#mandatory-1-1-relation 
+  store_paypal_detail    StorePaypalDetail @relation(fields: [store_paypal_detail_id], references: [id])
+  store_paypal_detail_id String            @unique
+
+  // mandatory
+  store_social_media    StoreSocialMedia @relation(fields: [store_social_media_id], references: [id])
+  store_social_media_id String           @unique
+
+  @@index([slug, vat_number, registration_number, telephone, fax])
+  @@index([title], type: Hash)
+}
+
+model StorePaypalDetail {
+  id String @id @default(uuid())
+
+  store_paypal_email         String
+  store_paypal_api_username  String
+  store_paypal_api_password  String
+  store_paypal_api_signature String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  store Store?
+}
+
+model StoreSocialMedia {
+  id String @id @default(uuid())
+
+  store_facebook    String
+  store_twitter     String
+  store_google_plus String
+  store_pinterest   String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  store Store?
+}
+
+// model StoreMetadata {
+//   id String @id @default(uuid())
+
+//   title         String?
+//   description   String?
+//   meta_keywords String[]
+
+//   schema_markup String
+
+//   created_at DateTime @default(now())
+// }
+
+// Categories - old
+// haar store ke paas apni categories thin
+// when store owner or store admin created products, they could select them and upload them
+// requirement then came that "main" categories - that will be created by "superadmin"
+// store owner - is NOW bound to select MAIN CATEGORY
+// Now we have decided that we will not take 
+
+// We now do not have store categories from now - will be confirmed from Deviskey team
+// Keep in mind that slugs and page routing structure is the same - already indexed on Google
+
+// Keep old categories, jo bani huyi hain, new category nahe banani hai
+model Category {
+  id String @id @default(uuid())
+
+  title       String @unique
+  sub_title   String @unique
+  description String
+  slug        String
+
+  meta_title       String?
+  meta_description String?
+  meta_keywords    String[]
+  schema_markup    String?
+
+  is_active Boolean @default(true)
+
+  image_primary   String
+  image_secondary String?
+
+  icon_primary   String
+  icon_secondary String?
+
+  is_featured Boolean @default(false)
+
+  parent    Category? @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  parent_id String?
+
+  menu_sort Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  children Category[] @relation("CategoryHierarchy")
+
+  @@index([sub_title])
+  @@index([title], type: Hash)
+}
+
+// model categories_main_to_products {
+//   id          Int @id @default(autoincrement())
+//   category_id Int
+//   product_id  Int
+// }
+
+// model categories_to_products {
+//   cat_to_product_id BigInt @id @default(autoincrement())
+//   product_id        BigInt
+//   category_id       BigInt
+//   is_main           Int    @default(0) @db.TinyInt
+
+//   @@index([cat_to_product_id], map: "cat_to_product_id")
+//   @@index([category_id], map: "category_id")
+//   @@index([category_id], map: "category_id_2")
+//   @@index([product_id], map: "product_id")
+//   @@index([product_id], map: "product_id_2")
+// }
+
+enum Role {
+  SUPERADMIN
+  STORE_OWNER
+  STORE_MANAGER
+  CUSTOMER
+}
+
+enum Title {
+  MR
+  MS
+  MRS
+  MISS
+  MASTER
+  MADAM
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  RATHER_NOT_SAY
+}

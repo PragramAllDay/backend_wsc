@@ -1,0 +1,28 @@
+export type AccessRights = {
+  category_module: boolean;
+  product_module: boolean;
+  attribute_module: boolean;
+  cms_module: boolean;
+  newsletter_module: boolean;
+  //   cc_sale_module: boolean;
+  //   web_sale_report_module: boolean;
+  //   cc_sale_report_module: boolean;
+  //   stock_log_module: boolean;
+  //   purchase_order_module: boolean;
+  //   make_receipt_cc_module: boolean;
+  //   make_receipt_web_module: boolean;
+  //   credit_note_module: boolean;
+  //   supplier_invoice_module: boolean;
+  //   supplier_payment_module: boolean;
+  //   supplier_credit_note_module: boolean;
+  //   supplier_debit_note_module: boolean;
+  //   supplier_orders_module: boolean;
+  //   supplier_ledger_module: boolean;
+  //   supplier_analytics_module: boolean;
+  //   cc_receipt_module: boolean;
+  //   web_receipt_module: boolean;
+  //   cheque_to_supplier_module: boolean;
+  //   cash_register_module: boolean;
+  //   expenditure_module: boolean;
+  //   expenditure_payment_module: boolean;
+};
