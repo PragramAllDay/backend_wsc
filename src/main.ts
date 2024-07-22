@@ -1,9 +1,11 @@
 import { writeFileSync } from 'fs';
 
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
+import { setupSwagger } from './configuration/swagger';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,8 +21,13 @@ async function bootstrap() {
     }),
   );
   app.setGlobalPrefix('api/v1/');
+  setupSwagger(app);
 
-  await app.listen(3000);
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('PORT');
+
+  await app.listen(port || 3000);
+  Logger.log(`Application is running onn ${await app.getUrl()}`);
 
   const server = app.getHttpServer();
   const router = server._events.request._router;
