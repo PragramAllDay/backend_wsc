@@ -3,7 +3,9 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// npx prisma format         //format schema.prisma model file
+// npx prisma migrate dev --name init     // To generate migration with name
+// npx prisma migrate deploy     // To run or deploy migration 
 generator client {
   provider = "prisma-client-js"
 }
@@ -25,6 +27,7 @@ model Country {
 
   states State[]
   cities City[]
+  Store  Store[]
 
   @@index([name], type: Hash)
 }
@@ -41,15 +44,14 @@ model State {
   country_id String
 
   cities City[]
+  Store  Store[]
 
   @@index([name], type: Hash)
 }
 
 model City {
-  id String @id @default(uuid())
-
-  name String
-
+  id         String   @id @default(uuid())
+  name       String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -57,10 +59,8 @@ model City {
   country_id String
   state      State   @relation(fields: [state_id], references: [id])
   state_id   String
-
-  users User[]
-
-  stores Store[]
+  users      User[]
+  stores     Store[]
 
   @@index([name], type: Hash)
 }
@@ -130,89 +130,96 @@ model UserMetaData {
 }
 
 model Store {
-  id String @id @default(uuid())
+  id                    String @id @default(uuid())
+  store_name            String @unique @db.VarChar(250)
+  spermalink            String @db.VarChar(300)
+  rent_per_month        Float  @default(0.00)
+  minimum_order         Float  @default(0.0)
+  commission_percentage Float  @default(0.0)
+  vat_number            String @unique
+  registration_number   String @unique
 
-  title       String  @unique
-  description String?
-  slug        String  @unique
-
-  // rent_per_month Float
-  // minimum_order
-  // commission_percentage Float
-
-  vat_number          String @unique
-  registration_number String @unique
-
-  logo_primary   String
-  logo_secondary String?
-
-  icon_primary   String
-  icon_secondary String?
-
-  banner_primary   String
-  banner_secondary String?
-
+  //logos
+  logo                  String
+  icon_primary          String
+  icon_secondary        String?
+  banner_primary        String
+  banner_secondary      String?
   side_banner_primary   String?
-  side_banner_Secondary String?
+  side_banner_secondary String?
 
-  telephone String
-  fax       String
-
+  telephone         String
+  fax               String
   address_primary   String
   address_secondary String
 
-  is_active Boolean @default(true)
+  description      String?
+  meta_title       String  @unique
+  meta_description String
+  slug             String  @unique
+  schema_markup    String
 
-  zip String
-
+  is_active  Boolean  @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  country    Country @relation(fields: [country_id], references: [id])
+  country_id String
+  state      State   @relation(fields: [state_id], references: [id])
+  state_id   String
+  city       City    @relation(fields: [city_id], references: [id])
+  city_id    String
+  zip        String
 
   owner    User   @relation(fields: [owner_id], references: [id])
   owner_id String
 
-  city    City   @relation(fields: [city_id], references: [id])
-  city_id String
-
-  // mandatory - check mandatory vs optional in Prisma Docs
-  // https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/one-to-one-relations#mandatory-1-1-relation 
   store_paypal_detail    StorePaypalDetail @relation(fields: [store_paypal_detail_id], references: [id])
   store_paypal_detail_id String            @unique
 
-  // mandatory
   store_social_media    StoreSocialMedia @relation(fields: [store_social_media_id], references: [id])
   store_social_media_id String           @unique
 
+  store_card_payment    StoreCardPaymentDetail @relation(fields: [store_card_payment_id], references: [id])
+  store_card_payment_id String                 @unique
+
+  sort                  Int     @default(0)
+  dropship              Boolean @default(false)
+  invoice_serial_number String
+
   @@index([slug, vat_number, registration_number, telephone, fax])
-  @@index([title], type: Hash)
+  @@index([meta_title], type: Hash)
 }
 
 model StorePaypalDetail {
-  id String @id @default(uuid())
-
+  id                         String   @id @default(uuid())
   store_paypal_email         String
   store_paypal_api_username  String
   store_paypal_api_password  String
   store_paypal_api_signature String
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  store Store?
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime @updatedAt
+  store                      Store?
 }
 
 model StoreSocialMedia {
-  id String @id @default(uuid())
-
+  id                String   @id @default(uuid())
   store_facebook    String
   store_twitter     String
   store_google_plus String
   store_pinterest   String
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  store             Store?
+}
 
+model StoreCardPaymentDetail {
+  id         String   @id @default(uuid())
+  title      String
+  detail     Json
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
-  store Store?
+  store      Store?
 }
 
 // model StoreMetadata {

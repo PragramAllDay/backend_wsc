@@ -1,6 +1,6 @@
 export const getDefaultStoreMedia = () => {
   return {
-    logo_primary: '',
+    logo: '',
     icon_primary: '',
     banner_primary: '',
   };

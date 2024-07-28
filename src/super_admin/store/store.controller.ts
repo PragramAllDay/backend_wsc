@@ -17,7 +17,7 @@ import { StoreService } from './store.service';
 import { Page, Store } from '@types';
 
 import { PageOptionsDTO } from 'src/common/dto';
-import { CreateStoreDTO } from '../store/dto';
+import { CreateStoreDto } from '../store/dto';
 
 @Controller()
 export class StoreController extends SuperAdminController {
@@ -42,7 +42,7 @@ export class StoreController extends SuperAdminController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   public async createStore(
-    @Body() createStoreDto: CreateStoreDTO,
+    @Body() createStoreDto: CreateStoreDto,
   ): Promise<Store> {
     return this.storeService.createStore(createStoreDto);
   }

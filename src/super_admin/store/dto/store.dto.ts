@@ -7,102 +7,265 @@ import {
   IsObject,
   ValidateNested,
   IsEmail,
+  IsNumber,
+  IsBoolean,
+  IsUUID,
+  IsDate,
+  IsPositive,
+  MinLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
-class StorePaypalDetail {
-  @IsNotEmpty()
+export class StorePaypalDetailDto {
+  // @ApiProperty({ example: 'UUID of the PayPal detail' })
+  // @IsUUID()
+  // @IsOptional()
+  // id?: string;
+
+  @ApiProperty({ example: 'paypal@example.com' })
   @IsEmail()
   store_paypal_email: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'paypal_api_username' })
   @IsString()
   store_paypal_api_username: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'paypal_api_password' })
   @IsString()
   store_paypal_api_password: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'paypal_api_signature' })
   @IsString()
   store_paypal_api_signature: string;
 }
-
-class StoreSocialMedia {
-  @IsNotEmpty()
+export class StoreSocialMediaDto {
+  @ApiProperty({ example: 'facebook_handle' })
   @IsString()
   store_facebook: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'twitter_handle' })
   @IsString()
   store_twitter: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'google_plus_handle' })
   @IsString()
   store_google_plus: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'pinterest_handle' })
   @IsString()
-  store_pintrest: string;
+  store_pinterest: string;
 }
-
-export class CreateStoreDTO {
-  @IsNotEmpty()
+export class StoreCardPaymentDetailDto {
+  @ApiProperty({ example: 'Card Payment Title' })
   @IsString()
+  @IsNotEmpty()
   title: string;
 
-  @IsOptional()
+  @ApiProperty({ example: 'Card Payment Detail in JSON format' })
   @IsNotEmpty()
+  detail: any;
+}
+export class CreateStoreDto {
+  @ApiProperty({ example: 'My Store' })
   @IsString()
-  description: string;
+  @IsNotEmpty()
+  store_name: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'my-store' })
   @IsString()
+  @IsNotEmpty()
+  spermalink: string;
+
+  @ApiProperty({ example: 1000.0, required: false })
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  rent_per_month?: number;
+
+  @ApiProperty({ example: 100.0, required: false })
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  minimum_order?: number;
+
+  @ApiProperty({ example: 10.0, required: false })
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  commission_percentage?: number;
+
+  @ApiProperty({ example: '123456789' })
+  @IsString()
+  @IsNotEmpty()
   vat_number: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: '987654321' })
   @IsString()
+  @IsNotEmpty()
   registration_number: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'https://example.com/logo.png', required: false })
   @IsString()
+  @IsOptional()
+  logo?: string;
+
+  @ApiProperty({
+    example: 'https://example.com/icon_primary.png',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  icon_primary?: string;
+
+  @ApiProperty({
+    example: 'https://example.com/icon_secondary.png',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  icon_secondary?: string;
+
+  @ApiProperty({
+    example: 'https://example.com/banner_primary.png',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  banner_primary?: string;
+
+  @ApiProperty({
+    example: 'https://example.com/banner_secondary.png',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  banner_secondary?: string;
+
+  @ApiProperty({
+    example: 'https://example.com/side_banner_primary.png',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  side_banner_primary?: string;
+
+  @ApiProperty({
+    example: 'https://example.com/side_banner_secondary.png',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  side_banner_secondary?: string;
+
+  @ApiProperty({ example: '+1234567890' })
+  @IsString()
+  @IsNotEmpty()
   telephone: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: '+1234567890', required: false })
   @IsString()
-  fax: string;
+  @IsOptional()
+  fax?: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: '123 Main St' })
   @IsString()
+  @IsNotEmpty()
   address_primary: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: '456 Second St', required: false })
   @IsString()
-  address_secondary: string;
+  @IsOptional()
+  address_secondary?: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'A brief description of the store', required: false })
   @IsString()
-  zip: string;
+  @IsOptional()
+  description?: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'My Store Title' })
   @IsString()
-  owner_id: string;
+  @IsNotEmpty()
+  meta_title: string;
 
-  @IsNotEmpty()
+  @ApiProperty({ example: 'A brief meta description of the store' })
   @IsString()
+  @IsOptional()
+  meta_description?: string;
+
+  @ApiProperty({ example: 'my-store-slug' })
+  @IsString()
+  @IsNotEmpty()
+  slug: string;
+
+  @ApiProperty({ example: 'Schema markup data', required: false })
+  @IsString()
+  @IsOptional()
+  schema_markup?: string;
+
+  @ApiProperty({ example: true, required: false })
+  @IsBoolean()
+  @IsOptional()
+  is_active?: boolean;
+
+  @ApiProperty({ example: 'UUID of the country' })
+  @IsUUID()
+  @IsNotEmpty()
+  country_id: string;
+
+  @ApiProperty({ example: 'UUID of the state' })
+  @IsUUID()
+  @IsNotEmpty()
+  state_id: string;
+
+  @ApiProperty({ example: 'UUID of the city' })
+  @IsUUID()
+  @IsNotEmpty()
   city_id: string;
 
-  @IsDefined()
-  @IsNotEmptyObject()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => StorePaypalDetail)
-  store_paypal_detail: StorePaypalDetail;
+  @ApiProperty({ example: '12345' })
+  @IsString()
+  @IsNotEmpty()
+  zip: string;
 
-  @IsDefined()
-  @IsNotEmptyObject()
-  @IsObject()
+  @ApiProperty({ type: StorePaypalDetailDto })
   @ValidateNested()
-  @Type(() => StoreSocialMedia)
-  store_social_media: StoreSocialMedia;
+  @Type(() => StorePaypalDetailDto)
+  store_paypal_detail: StorePaypalDetailDto;
+
+  @ApiProperty({ type: StoreSocialMediaDto })
+  @ValidateNested()
+  @Type(() => StoreSocialMediaDto)
+  store_social_media: StoreSocialMediaDto;
+
+  @ApiProperty({ type: StoreCardPaymentDetailDto })
+  @ValidateNested()
+  @Type(() => StoreCardPaymentDetailDto)
+  store_card_payment: StoreCardPaymentDetailDto;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
+  sort?: number;
+
+  @ApiProperty({ example: false, required: false })
+  @IsBoolean()
+  @IsOptional()
+  dropship?: boolean;
+
+  @ApiProperty({ example: 1234567890, required: false })
+  @IsString()
+  @IsOptional()
+  invoice_serial_number?: string;
+
+  @ApiProperty()
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8, { message: 'password must be 8 characters long' })
+  password: string;
 }

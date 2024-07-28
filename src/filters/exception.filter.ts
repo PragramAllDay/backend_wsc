@@ -4,9 +4,9 @@ import {
   Catch,
   ArgumentsHost,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 import { PrismaErrors } from 'src/errors';
@@ -72,11 +72,16 @@ const getResponseMessage = (
     return getErrorResponseForHttpException(exception);
   } else if (exception instanceof PrismaClientKnownRequestError) {
     return getErrorResponseForPrismaClientKnownRequestError(exception);
+  } else if (exception instanceof Error) {
+    return exception.message;
   }
+  return 'Unexpected error';
 };
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+  private readonly logger = new Logger(AllExceptionsFilter.name);
+
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
   catch(
@@ -84,16 +89,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
     host: ArgumentsHost,
   ): void {
     const { httpAdapter } = this.httpAdapterHost;
-
     const ctx = host.switchToHttp();
 
     const httpStatus = getStatusCode(exception);
+    const responseMessage = getResponseMessage(exception);
+
+    this.logger.error('Exception caught:', exception);
 
     const responseBody = {
       statusCode: httpStatus,
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
-      detail: getResponseMessage(exception) || 'Something went wrong',
+      detail: responseMessage || 'Something went wrong',
     };
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
