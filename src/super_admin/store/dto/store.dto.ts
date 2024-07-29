@@ -28,42 +28,49 @@ export class StorePaypalDetailDto {
   store_paypal_email: string;
 
   @ApiProperty({ example: 'paypal_api_username' })
+  @IsOptional()
   @IsString()
   store_paypal_api_username: string;
 
   @ApiProperty({ example: 'paypal_api_password' })
+  @IsOptional()
   @IsString()
   store_paypal_api_password: string;
 
   @ApiProperty({ example: 'paypal_api_signature' })
+  @IsOptional()
   @IsString()
   store_paypal_api_signature: string;
 }
 export class StoreSocialMediaDto {
   @ApiProperty({ example: 'facebook_handle' })
+  @IsOptional()
   @IsString()
   store_facebook: string;
 
   @ApiProperty({ example: 'twitter_handle' })
+  @IsOptional()
   @IsString()
   store_twitter: string;
 
   @ApiProperty({ example: 'google_plus_handle' })
+  @IsOptional()
   @IsString()
   store_google_plus: string;
 
   @ApiProperty({ example: 'pinterest_handle' })
+  @IsOptional()
   @IsString()
   store_pinterest: string;
 }
 export class StoreCardPaymentDetailDto {
   @ApiProperty({ example: 'Card Payment Title' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   title: string;
 
   @ApiProperty({ example: 'Card Payment Detail in JSON format' })
-  @IsNotEmpty()
+  @IsOptional()
   detail: any;
 }
 export class CreateStoreDto {
@@ -253,12 +260,12 @@ export class CreateStoreDto {
   @IsOptional()
   dropship?: boolean;
 
-  @ApiProperty({ example: 1234567890, required: false })
+  @ApiProperty({ example: '1234567890', required: false })
   @IsString()
   @IsOptional()
   invoice_serial_number?: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'exampl@abc.com', required: true })
   @IsEmail()
   @IsNotEmpty()
   email: string;
@@ -266,6 +273,165 @@ export class CreateStoreDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @MinLength(8, { message: 'password must be 8 characters long' })
+  password: string;
+}
+export class UpdateStoreDto {
+  @IsOptional()
+  @IsString()
+  meta_title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  meta_description?: string;
+
+  @IsOptional()
+  @IsString()
+  store_name?: string;
+
+  @IsOptional()
+  @IsString()
+  spermalink?: string;
+
+  @ApiProperty({ example: 1000.0, required: false })
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  rent_per_month?: number;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  minimum_order?: number;
+
+  @ApiProperty({ example: 10.0, required: false })
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  commission_percentage?: number;
+
+  @IsOptional()
+  @IsString()
+  schema_markup?: string;
+
+  @IsOptional()
+  @IsString()
+  invoice_serial_number?: string;
+
+  @IsOptional()
+  @IsString()
+  slug?: string;
+
+  @IsOptional()
+  @IsString()
+  vat_number?: string;
+
+  @IsOptional()
+  @IsString()
+  registration_number?: string;
+
+  @IsOptional()
+  @IsString()
+  logo?: string;
+
+  @IsOptional()
+  @IsString()
+  icon_primary?: string;
+
+  @IsOptional()
+  @IsString()
+  icon_secondary?: string;
+
+  @IsOptional()
+  @IsString()
+  banner_primary?: string;
+
+  @IsOptional()
+  @IsString()
+  banner_secondary?: string;
+
+  @IsOptional()
+  @IsString()
+  side_banner_primary?: string;
+
+  @IsOptional()
+  @IsString()
+  side_banner_secondary?: string;
+
+  @IsOptional()
+  @IsString()
+  telephone?: string;
+
+  @IsOptional()
+  @IsString()
+  fax?: string;
+
+  @IsOptional()
+  @IsString()
+  address_primary?: string;
+
+  @IsOptional()
+  @IsString()
+  address_secondary?: string;
+
+  @IsOptional()
+  @IsString()
+  zip?: string;
+
+  @IsOptional()
+  @IsUUID()
+  city_id?: string;
+
+  @IsOptional()
+  @IsUUID()
+  country_id?: string;
+
+  @IsOptional()
+  @IsUUID()
+  state_id?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => StorePaypalDetailDto)
+  store_paypal_detail?: StorePaypalDetailDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => StoreSocialMediaDto)
+  store_social_media?: StoreSocialMediaDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => StoreCardPaymentDetailDto)
+  store_card_payment?: StoreCardPaymentDetailDto;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
+  sort?: number;
+
+  @ApiProperty({ example: false, required: false })
+  @IsBoolean()
+  @IsOptional()
+  dropship?: boolean;
+
+  @ApiProperty()
+  @IsEmail()
+  @IsOptional()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
   @MinLength(8, { message: 'password must be 8 characters long' })
   password: string;
 }
