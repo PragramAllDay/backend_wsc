@@ -10,6 +10,7 @@ import { CityModule as SuperAdminCityModule } from './city/city.module';
 import { StoreOwnerModule as SuperAdminStoreOwnerModule } from './store_owner/store_owner.module';
 
 import { StoreModule as SuperAdminStoreModule } from './store/store.module';
+import { CategoryModule } from './category/category.module';
 
 export const SUPERADMIN_ROUTES: RouteType = [
   {
@@ -39,6 +40,10 @@ export const SUPERADMIN_ROUTES: RouteType = [
       {
         path: 'stores',
         module: SuperAdminStoreModule,
+      },
+      {
+        path: 'categories',
+        module: CategoryModule,
       },
     ],
   },

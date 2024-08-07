@@ -6,6 +6,7 @@
 // npx prisma format         //format schema.prisma model file
 // npx prisma migrate dev --name init     // To generate migration with name
 // npx prisma migrate deploy     // To run or deploy migration 
+//npx prisma db seed
 generator client {
   provider = "prisma-client-js"
 }
@@ -104,13 +105,49 @@ model User {
 }
 
 model UserAccessRight {
-  id String @id @default(uuid())
+  id               String  @id @default(uuid())
+  //Catalog
+  category_module  Boolean @default(false)
+  product_module   Boolean @default(false)
+  attribute_module Boolean @default(false)
+  stock_log_module Boolean @default(false)
 
-  category_module   Boolean @default(false)
-  product_module    Boolean @default(false)
-  attribute_module  Boolean @default(false)
-  cms_module        Boolean @default(false)
-  newsletter_module Boolean @default(false)
+  //Sales and Order 
+
+  wholesale_order_module  Boolean @default(false)
+  dropship_order_module   Boolean @default(false)
+  cc_sale_module          Boolean @default(false)
+  make_receipt_cc_module  Boolean @default(false)
+  make_receipt_web_module Boolean @default(false)
+  credit_note_module      Boolean @default(false)
+  purchase_order_module   Boolean @default(false)
+
+  //Back Orders 
+
+  wholesale_back_order_module Boolean @default(false)
+  dropship_back_order_module  Boolean @default(false)
+
+  //Suppliers
+  supplier_invoice_module     Boolean @default(false)
+  supplier_payment_module     Boolean @default(false)
+  supplier_credit_note_module Boolean @default(false)
+  supplier_debit_note_module  Boolean @default(false)
+  supplier_orders_module      Boolean @default(false)
+  supplier_ledger_module      Boolean @default(false)
+  supplier_analytics_module   Boolean @default(false)
+  //CMS 
+  cms_module                  Boolean @default(false)
+  newsletter_module           Boolean @default(false)
+  //Accounts 
+  web_sale_report_module      Boolean @default(false)
+  cc_sale_report_module       Boolean @default(false)
+  sale_agent_report_module    Boolean @default(false)
+  web_receipt_module          Boolean @default(false)
+  cc_receipt_module           Boolean @default(false)
+  cheque_to_supplier_module   Boolean @default(false)
+  cash_register_module        Boolean @default(false)
+  expenditure_module          Boolean @default(false)
+  expenditure_payment_module  Boolean @default(false)
 
   user User?
 }
@@ -250,15 +287,13 @@ model Category {
 
   title       String @unique
   sub_title   String @unique
+  permalink   String
   description String
-  slug        String
 
   meta_title       String?
   meta_description String?
   meta_keywords    String[]
   schema_markup    String?
-
-  is_active Boolean @default(true)
 
   image_primary   String
   image_secondary String?
@@ -266,17 +301,18 @@ model Category {
   icon_primary   String
   icon_secondary String?
 
+  sort_order  Int     @default(0)
   is_featured Boolean @default(false)
 
-  parent    Category? @relation("CategoryHierarchy", fields: [parent_id], references: [id])
-  parent_id String?
-
-  menu_sort Int
+  is_active Boolean @default(true)
+  slug      String
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  children Category[] @relation("CategoryHierarchy")
+  parent_id String?
+  parent    Category?  @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  children  Category[] @relation("CategoryHierarchy")
 
   @@index([sub_title])
   @@index([title], type: Hash)
