@@ -10,7 +10,10 @@ import { PageOptionsDTO } from 'src/common/dto';
 // import { CreateCountryDTO } from './dto';
 
 import { AppError } from 'src/errors';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import {
+  CreateCategoryDto,
+  SortCategoriesDto,
+} from './dto/create-category.dto';
 import { generateSlug } from 'src/common/utils';
 
 @Injectable()
@@ -33,120 +36,153 @@ export class CategoryService {
         parent_id: parent_id ? parent_id : null,
       };
 
-      return this.prismaService.category.create({
+      const updateCategory = await this.prismaService.category.create({
         data: categoryData,
       });
+      return this.paginateService.sendResponse(
+        HttpStatus.CREATED,
+        'Success',
+        updateCategory,
+      );
     } catch (error) {
-      console.error('Error creating store:', error);
-      throw new AppError(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error('Error creating category:', error);
+      throw error;
     }
   }
 
-  async getCategoryById(id: string): Promise<Category | null> {
-    return this.prismaService.category.findUnique({
-      where: { id },
-    });
+  async getCategoryById(id: string) {
+    try {
+      const category = await this.prismaService.category.findUnique({
+        where: { id },
+      });
+      if (!category) {
+        throw new AppError('Category not found', HttpStatus.NOT_FOUND);
+      }
+      return this.paginateService.sendResponse(
+        HttpStatus.OK,
+        'Success',
+        category,
+      );
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      throw error;
+    }
+  }
+  async updateCategory(id: string, data: Prisma.CategoryUpdateInput) {
+    try {
+      const category = await this.prismaService.category.findUnique({
+        where: { id },
+      });
+      if (!category) {
+        throw new AppError('Category not found', HttpStatus.NOT_FOUND);
+      }
+      const updateCategory = await this.prismaService.category.update({
+        where: { id },
+        data,
+      });
+      return this.paginateService.sendResponse(
+        HttpStatus.OK,
+        'Success',
+        updateCategory,
+      );
+    } catch (error) {
+      console.error('Error updating category:', error);
+      throw error;
+    }
   }
 
-  async updateCategory(
-    id: string,
-    data: Prisma.CategoryUpdateInput,
-  ): Promise<Category> {
-    return this.prismaService.category.update({
-      where: { id },
-      data,
-    });
+  async deleteCategory(id: string) {
+    try {
+      const category = await this.prismaService.category.findUnique({
+        where: { id },
+      });
+      if (!category) {
+        throw new AppError('Category not found', HttpStatus.NOT_FOUND);
+      }
+      await this.prismaService.category.delete({
+        where: { id },
+      });
+
+      return this.paginateService.sendResponse(
+        HttpStatus.OK,
+        'Success deleted',
+        {},
+      );
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
   }
 
-  async deleteCategory(id: string): Promise<Category> {
-    return this.prismaService.category.delete({
-      where: { id },
-    });
-  }
-
-  async getAllCategories(): Promise<Category[]> {
-    const categories = await this.prismaService.category.findMany({
-      select: {
-        id: true,
-        title: true,
-        sub_title: true,
-        permalink: true,
-        meta_title: true,
-        meta_description: true,
-        meta_keywords: true,
-        schema_markup: true,
-        image_primary: true,
-        image_secondary: true,
-        icon_primary: true,
-        icon_secondary: true,
-        sort_order: true,
-        created_at: true,
-        updated_at: true,
-        is_active: true,
-        is_featured: true,
-        slug: true,
-        description: true,
-        parent_id: true,
-
-        parent: {
-          select: {
-            id: true,
-            title: true,
-            sub_title: true,
-            permalink: true,
-            meta_title: true,
-            meta_description: true,
-            meta_keywords: true,
-            schema_markup: true,
-            image_primary: true,
-            image_secondary: true,
-            icon_primary: true,
-            icon_secondary: true,
-            sort_order: true,
-            created_at: true,
-            updated_at: true,
-            is_active: true,
-            is_featured: true,
-            slug: true,
-            description: true,
-            parent_id: true,
-            parent: {
-              select: {
-                id: true,
-                title: true,
-                sub_title: true,
-                permalink: true,
-                meta_title: true,
-                meta_description: true,
-                meta_keywords: true,
-                schema_markup: true,
-                image_primary: true,
-                image_secondary: true,
-                icon_primary: true,
-                icon_secondary: true,
-                sort_order: true,
-                created_at: true,
-                updated_at: true,
-                is_active: true,
-                is_featured: true,
-                slug: true,
-                description: true,
-                parent_id: true,
-              },
+  async getAllCategories() {
+    try {
+      const categories = await this.prismaService.category.findMany({
+        include: {
+          parent: {
+            include: {
+              parent: true,
             },
           },
         },
-      },
-    });
+      });
+      categories.forEach((item) => {
+        if (item.parent) {
+          item.title = item.parent.parent
+            ? `${item.parent.parent.title} >> ${item.parent.title} >> ${item.title}`
+            : `${item.parent.title} >> ${item.title}`;
+        }
+      });
+      return this.paginateService.sendResponse(
+        HttpStatus.OK,
+        'Success',
+        categories,
+      );
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  }
 
-    categories.forEach((item) => {
-      if (item.parent) {
-        item.title = item.parent.parent
-          ? `${item.parent.parent.title} -> ${item.parent.title} -> ${item.title}`
-          : `${item.parent.title} -> ${item.title}`;
+  async findAllParentCategories() {
+    try {
+      const categories = await this.prismaService.category.findMany({
+        where: {
+          parent_id: null,
+        },
+        select: {
+          id: true,
+          title: true,
+          sub_title: true,
+          sort_order: true,
+        },
+      });
+      return this.paginateService.sendResponse(
+        HttpStatus.OK,
+        'Success',
+        categories,
+      );
+    } catch (error) {
+      console.error('Error fetching parent categories:', error);
+      throw error;
+    }
+  }
+
+  async sortCategories(sortCategoriesDto: SortCategoriesDto) {
+    try {
+      const { categoryIds } = sortCategoriesDto;
+
+      for (let i = 0; i < categoryIds.length; i++) {
+        const id = categoryIds[i];
+        await this.prismaService.category.update({
+          where: { id },
+          data: { sort_order: i + 1 },
+        });
       }
-    });
 
-    return categories;
+      return this.paginateService.sendResponse(HttpStatus.OK, 'Success', {});
+    } catch (error) {
+      console.error('Error sorting categories:', error);
+      throw error;
+    }
   }
 }

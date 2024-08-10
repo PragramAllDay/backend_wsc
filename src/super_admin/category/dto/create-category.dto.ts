@@ -7,6 +7,7 @@ import {
   IsUUID,
   Length,
   IsArray,
+  isArray,
 } from 'class-validator';
 
 export class CreateCategoryDto {
@@ -120,3 +121,9 @@ export class CreateCategoryDto {
 }
 
 export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {}
+
+export class SortCategoriesDto {
+  @ApiProperty()
+  @IsArray({ message: 'categoryIds must be an array' })
+  categoryIds: string[];
+}

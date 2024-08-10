@@ -21,6 +21,7 @@ import { PageOptionsDTO } from 'src/common/dto';
 import { Prisma } from '@prisma/client';
 import {
   CreateCategoryDto,
+  SortCategoriesDto,
   UpdateCategoryDto,
 } from './dto/create-category.dto';
 
@@ -39,6 +40,18 @@ export class CategoryController extends SuperAdminController {
   @Get()
   async findAll() {
     return this.categoryService.getAllCategories();
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('parents')
+  async findAllParentCategories() {
+    return this.categoryService.findAllParentCategories();
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put('sort')
+  async sortCategories(@Body() sortCategoriesDto: SortCategoriesDto) {
+    return this.categoryService.sortCategories(sortCategoriesDto);
   }
 
   @HttpCode(HttpStatus.OK)
