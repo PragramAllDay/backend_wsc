@@ -6,7 +6,7 @@ import { AllExceptionsFilter } from './filters';
 
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { PaginateModule } from './paginate/paginate.module';
+import { ResponseModule } from './response/response.module';
 
 import { AppRoutingModule } from './routing/routing.module';
 
@@ -23,7 +23,7 @@ import { AppRoutingModule } from './routing/routing.module';
     }),
     PrismaModule,
     AuthModule,
-    PaginateModule,
+    ResponseModule,
     AppRoutingModule,
   ],
 })

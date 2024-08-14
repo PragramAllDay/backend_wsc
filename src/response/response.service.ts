@@ -5,9 +5,12 @@ import { Page, PageMeta } from '@types';
 import { PageOptionsDTO } from 'src/common/dto';
 
 @Injectable()
-export class PaginateService {
+export class ResponseService {
   constructor() {}
 
+  async sendResponse<T>(status: number, message: string, data: T) {
+    return { status: status, message, data };
+  }
   async paginate<T>(
     filteredData: T[],
     allDataCount: number,
@@ -32,8 +35,5 @@ export class PaginateService {
       meta,
       data: filteredData,
     };
-  }
-  async sendResponse<T>(status: number, message: string, data: T) {
-    return { status: status, message, data };
   }
 }

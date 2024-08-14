@@ -15,16 +15,13 @@ import { SuperAdminController } from '../super_admin.controller';
 
 import { CategoryService } from './category.service';
 
-import { Page } from '@types';
-
-import { PageOptionsDTO } from 'src/common/dto';
-import { Prisma } from '@prisma/client';
 import {
   CreateCategoryDto,
   SortCategoriesDto,
   UpdateCategoryDto,
 } from './dto/create-category.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Super Admin - Category')
 @Controller()
 export class CategoryController extends SuperAdminController {
   constructor(private categoryService: CategoryService) {

@@ -1,7 +1,7 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginateService } from 'src/paginate/paginate.service';
+import { ResponseService } from 'src/response/response.service';
 
 import { Prisma } from '@prisma/client';
 import { Page, Country } from '@types';
@@ -15,7 +15,7 @@ import { AppError } from 'src/errors';
 export class CountryService {
   constructor(
     private prismaService: PrismaService,
-    private paginateService: PaginateService,
+    private responseService: ResponseService,
   ) {}
 
   public async getAllCountries(
@@ -70,7 +70,7 @@ export class CountryService {
       },
     });
 
-    return await this.paginateService.paginate<Country>(
+    return await this.responseService.paginate<Country>(
       countries,
       countriesCountByWhereClause,
       pageOptionsDto,
@@ -113,9 +113,9 @@ export class CountryService {
 
     return await this.prismaService.country.create({
       data: {
-        name: createCountryDto.code,
+        name: createCountryDto.name,
         short_code: createCountryDto.short_code,
-        code: createCountryDto.short_code,
+        code: createCountryDto.code,
       },
       select: {
         id: true,

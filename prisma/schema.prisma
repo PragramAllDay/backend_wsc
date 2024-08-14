@@ -56,12 +56,13 @@ model City {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  country    Country @relation(fields: [country_id], references: [id])
+  country    Country   @relation(fields: [country_id], references: [id])
   country_id String
-  state      State   @relation(fields: [state_id], references: [id])
+  state      State     @relation(fields: [state_id], references: [id])
   state_id   String
   users      User[]
   stores     Store[]
+  Address    Address[]
 
   @@index([name], type: Hash)
 }
@@ -78,14 +79,12 @@ model User {
 
   role Role
 
-  dob DateTime
-
-  is_active Boolean @default(true)
+  dob       DateTime
+  is_active Boolean  @default(true)
 
   title     Title
   gender    Gender  @default(RATHER_NOT_SAY)
   telephone String? @unique
-
   image_uri String?
 
   created_at DateTime @default(now())
@@ -100,8 +99,40 @@ model User {
   user_meta_data UserMetaData[]
   stores         Store[]
 
+  company                 String?
+  vatno                   String?
+  regno                   String?
+  newsletter_subscription Boolean?  @default(false)
+  discount                Float?    @default(0)
+  website                 String?
+  is_vat                  Boolean?  @default(true)
+  sales_agent_code        String?
+  special_price           Int?      @default(0)
+  Address                 Address[]
+
   @@index([first_name])
   @@index([telephone], type: Hash)
+}
+
+model Address {
+  id             String @default(uuid())
+  contact_person String
+  email          String
+  telephone      String @default("")
+  zip            String @default("")
+  address        String @db.Text
+  building       String @default("")
+
+  is_active Boolean @default(true)
+
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String
+  city    City?  @relation(fields: [city_id], references: [id])
+  city_id String
+
+  @@unique([id])
+  @@index([user_id])
+  @@index([city_id])
 }
 
 model UserAccessRight {
@@ -220,9 +251,10 @@ model Store {
   store_card_payment    StoreCardPaymentDetail @relation(fields: [store_card_payment_id], references: [id])
   store_card_payment_id String                 @unique
 
-  sort                  Int     @default(0)
-  dropship              Boolean @default(false)
+  sort                  Int         @default(0)
+  dropship              Boolean     @default(false)
   invoice_serial_number String
+  attributes            Attribute[] // Relation to multiple Attributes
 
   @@index([slug, vat_number, registration_number, telephone, fax])
   @@index([meta_title], type: Hash)
@@ -318,23 +350,63 @@ model Category {
   @@index([title], type: Hash)
 }
 
-// model categories_main_to_products {
-//   id          Int @id @default(autoincrement())
-//   category_id Int
-//   product_id  Int
-// }
+model Attribute {
+  id   String @id @default(uuid())
+  name String @db.VarChar(255)
 
-// model categories_to_products {
-//   cat_to_product_id BigInt @id @default(autoincrement())
-//   product_id        BigInt
-//   category_id       BigInt
-//   is_main           Int    @default(0) @db.TinyInt
+  is_active Boolean @default(true)
 
-//   @@index([cat_to_product_id], map: "cat_to_product_id")
-//   @@index([category_id], map: "category_id")
-//   @@index([category_id], map: "category_id_2")
-//   @@index([product_id], map: "product_id")
-//   @@index([product_id], map: "product_id_2")
+  store_id String
+  store    Store  @relation(fields: [store_id], references: [id]) // Relation to Store
+
+  attribute_values AttributeValue[]
+
+  @@index([name])
+}
+
+model AttributeValue {
+  id              String  @id @default(uuid())
+  attribute_value String  @db.Char(255)
+  is_active       Boolean @default(true)
+
+  attribute_id String
+  attribute    Attribute @relation(fields: [attribute_id], references: [id])
+
+  @@index([id])
+  @@map("attribute_values")
+}
+
+// model Product {
+//   id                String   @id @default(uuid())
+//   product_name      String   @db.VarChar(500)
+//   sku               String   @db.VarChar(255)
+//   measuring_unit    String   @default("") @db.VarChar(255)
+//   product_range     String   @default("") @db.VarChar(255)
+//   vat               Float    @default(0)
+//   short_description String   @db.Text
+//   full_description  String   @db.Text
+//   is_featured       Boolean  @default(false)
+//   is_special        Boolean  @default(false)
+//   free_shipping     Boolean  @default(false)
+//   supplier_id       Int      @default(0)
+//   visibility        Int      @default(0)
+//   store_id          BigInt
+//   date_created      DateTime @default(now())
+//   related_products  String   @db.Text
+//   is_active         Boolean  @default(true)
+//   update_date       DateTime @default(now()) @updatedAt
+//   permalink         String   @default("") @db.VarChar(500)
+//   title             String   @db.Text
+//   meta_description  String   @db.Text
+//   keywords          String?  @db.Text
+//   view              String   @default("Default") @db.VarChar(130)
+//   packed_as         String?  @db.VarChar(155)
+//   meta_keywords     String   @db.VarChar(255)
+
+//   @@index([id])
+//   @@index([store_id])
+//   @@index([sku])
+//   @@map("products")
 // }
 
 enum Role {

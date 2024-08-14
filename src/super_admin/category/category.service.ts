@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginateService } from 'src/paginate/paginate.service';
+import { ResponseService } from 'src/response/response.service';
 
 import { Category, Prisma } from '@prisma/client';
 import { Page } from '@types';
@@ -20,7 +20,7 @@ import { generateSlug } from 'src/common/utils';
 export class CategoryService {
   constructor(
     private prismaService: PrismaService,
-    private paginateService: PaginateService,
+    private responseService: ResponseService,
   ) {}
 
   async createCategory(data: CreateCategoryDto) {
@@ -39,7 +39,7 @@ export class CategoryService {
       const updateCategory = await this.prismaService.category.create({
         data: categoryData,
       });
-      return this.paginateService.sendResponse(
+      return this.responseService.sendResponse(
         HttpStatus.CREATED,
         'Success',
         updateCategory,
@@ -58,7 +58,7 @@ export class CategoryService {
       if (!category) {
         throw new AppError('Category not found', HttpStatus.NOT_FOUND);
       }
-      return this.paginateService.sendResponse(
+      return this.responseService.sendResponse(
         HttpStatus.OK,
         'Success',
         category,
@@ -80,7 +80,7 @@ export class CategoryService {
         where: { id },
         data,
       });
-      return this.paginateService.sendResponse(
+      return this.responseService.sendResponse(
         HttpStatus.OK,
         'Success',
         updateCategory,
@@ -103,7 +103,7 @@ export class CategoryService {
         where: { id },
       });
 
-      return this.paginateService.sendResponse(
+      return this.responseService.sendResponse(
         HttpStatus.OK,
         'Success deleted',
         {},
@@ -132,7 +132,7 @@ export class CategoryService {
             : `${item.parent.title} >> ${item.title}`;
         }
       });
-      return this.paginateService.sendResponse(
+      return this.responseService.sendResponse(
         HttpStatus.OK,
         'Success',
         categories,
@@ -156,7 +156,7 @@ export class CategoryService {
           sort_order: true,
         },
       });
-      return this.paginateService.sendResponse(
+      return this.responseService.sendResponse(
         HttpStatus.OK,
         'Success',
         categories,
@@ -179,7 +179,7 @@ export class CategoryService {
         });
       }
 
-      return this.paginateService.sendResponse(HttpStatus.OK, 'Success', {});
+      return this.responseService.sendResponse(HttpStatus.OK, 'Success', {});
     } catch (error) {
       console.error('Error sorting categories:', error);
       throw error;

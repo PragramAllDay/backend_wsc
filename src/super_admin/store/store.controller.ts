@@ -20,7 +20,8 @@ import { Page } from '@types';
 import { PageOptionsDTO } from 'src/common/dto';
 import { CreateStoreDto, UpdateStoreDto } from '../store/dto';
 import { Store } from '@prisma/client';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Super Admin - Store')
 @Controller()
 export class StoreController extends SuperAdminController {
   constructor(private storeService: StoreService) {

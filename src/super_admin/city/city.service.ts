@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginateService } from 'src/paginate/paginate.service';
+import { ResponseService } from 'src/response/response.service';
 
 import { Prisma } from '@prisma/client';
 import { Page, City } from '@types';
@@ -15,7 +15,7 @@ import { AppError } from 'src/errors';
 export class CityService {
   constructor(
     private prismaService: PrismaService,
-    private paginateService: PaginateService,
+    private responseService: ResponseService,
   ) {}
 
   public async getAllCities(
@@ -70,7 +70,7 @@ export class CityService {
       },
     });
 
-    return await this.paginateService.paginate<City>(
+    return await this.responseService.paginate<City>(
       cities,
       citiesCountByWhereClause,
       pageOptionsDto,

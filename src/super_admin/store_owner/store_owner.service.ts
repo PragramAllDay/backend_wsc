@@ -3,7 +3,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import * as argon from 'argon2';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginateService } from 'src/paginate/paginate.service';
+import { ResponseService } from 'src/response/response.service';
 
 import { Prisma } from '@prisma/client';
 import { Page, StoreOwner, UserTitle, UserGender } from '@types';
@@ -17,7 +17,7 @@ import { AppError } from 'src/errors';
 export class StoreOwnerService {
   constructor(
     private prismaService: PrismaService,
-    private paginateService: PaginateService,
+    private responseService: ResponseService,
   ) {}
 
   public async getAllStoreOwners(
@@ -121,7 +121,7 @@ export class StoreOwnerService {
       },
     });
 
-    return await this.paginateService.paginate<StoreOwner>(
+    return await this.responseService.paginate<StoreOwner>(
       storeOwners as StoreOwner[],
       storeOwnersByWhereClause,
       pageOptionsDto,

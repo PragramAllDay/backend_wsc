@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginateService } from 'src/paginate/paginate.service';
+import { ResponseService } from 'src/response/response.service';
 
 import { Gender, Prisma, Role, Store, Title } from '@prisma/client';
 import { Page } from '@types';
@@ -18,7 +18,7 @@ import * as argon from 'argon2';
 export class StoreService {
   constructor(
     private prismaService: PrismaService,
-    private paginateService: PaginateService,
+    private responseService: ResponseService,
   ) {}
 
   public async getAllStores(
@@ -210,7 +210,7 @@ export class StoreService {
       },
     });
 
-    return await this.paginateService.paginate<Store>(
+    return await this.responseService.paginate<Store>(
       stores,
       storesCountByWhereClause,
       pageOptionsDto,
