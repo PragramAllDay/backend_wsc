@@ -255,6 +255,8 @@ model Store {
   dropship              Boolean     @default(false)
   invoice_serial_number String
   attributes            Attribute[] // Relation to multiple Attributes
+  Supplier              Supplier[]
+  Product               Product[]
 
   @@index([slug, vat_number, registration_number, telephone, fax])
   @@index([meta_title], type: Hash)
@@ -346,6 +348,8 @@ model Category {
   parent    Category?  @relation("CategoryHierarchy", fields: [parent_id], references: [id])
   children  Category[] @relation("CategoryHierarchy")
 
+  products Product[] @relation("ProductCategories")
+
   @@index([sub_title])
   @@index([title], type: Hash)
 }
@@ -361,53 +365,144 @@ model Attribute {
 
   attribute_values AttributeValue[]
 
+  products Product[]         @relation("ProductAttributes")
+  varients ProductVarients[] @relation("VarientAttributes")
+
   @@index([name])
 }
 
 model AttributeValue {
   id              String  @id @default(uuid())
-  attribute_value String  @db.Char(255)
+  attribute_value String
   is_active       Boolean @default(true)
 
   attribute_id String
   attribute    Attribute @relation(fields: [attribute_id], references: [id])
 
+  varients ProductVarients[] @relation("VarientAttributeValues")
+
   @@index([id])
   @@map("attribute_values")
 }
 
-// model Product {
-//   id                String   @id @default(uuid())
-//   product_name      String   @db.VarChar(500)
-//   sku               String   @db.VarChar(255)
-//   measuring_unit    String   @default("") @db.VarChar(255)
-//   product_range     String   @default("") @db.VarChar(255)
-//   vat               Float    @default(0)
-//   short_description String   @db.Text
-//   full_description  String   @db.Text
-//   is_featured       Boolean  @default(false)
-//   is_special        Boolean  @default(false)
-//   free_shipping     Boolean  @default(false)
-//   supplier_id       Int      @default(0)
-//   visibility        Int      @default(0)
-//   store_id          BigInt
-//   date_created      DateTime @default(now())
-//   related_products  String   @db.Text
-//   is_active         Boolean  @default(true)
-//   update_date       DateTime @default(now()) @updatedAt
-//   permalink         String   @default("") @db.VarChar(500)
-//   title             String   @db.Text
-//   meta_description  String   @db.Text
-//   keywords          String?  @db.Text
-//   view              String   @default("Default") @db.VarChar(130)
-//   packed_as         String?  @db.VarChar(155)
-//   meta_keywords     String   @db.VarChar(255)
+model Product {
+  id           String @id @default(uuid())
+  product_name String @db.VarChar(500)
+  permalink    String @default("") @db.VarChar(500)
 
-//   @@index([id])
-//   @@index([store_id])
-//   @@index([sku])
-//   @@map("products")
-// }
+  sku            String   @db.VarChar(255)
+  product_code   String
+  measuring_unit String   @default("") @db.VarChar(255)
+  packed_as      PackedAs
+
+  product_range String @default("") @db.VarChar(255)
+  custom_code   String
+  vat           Float  @default(0)
+
+  length Float @default(0)
+  width  Float @default(0)
+  height Float @default(0)
+  weight Float @default(0)
+
+  isle_no           String
+  short_description String @db.Text
+  full_description  String @db.Text
+
+  is_featured   Boolean @default(false)
+  is_special    Boolean @default(false)
+  free_shipping Boolean @default(false)
+  keywords      String? @db.Text
+
+  related_products String  @db.Text
+  is_active        Boolean @default(true)
+  title            String  @db.Text
+  meta_description String  @db.Text
+
+  view String @default("Default") @db.VarChar(130)
+
+  meta_keywords String @db.VarChar(255)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  store_id    String
+  store       Store    @relation(fields: [store_id], references: [id]) // Relation to Store 
+  supplier_id String
+  supplier    Supplier @relation(fields: [supplier_id], references: [id]) // Relation to Store 
+
+  ProductImages ProductImages[]
+  categories    Category[]      @relation("ProductCategories")
+  attributes    Attribute[]     @relation("ProductAttributes")
+
+  variants ProductVarients[] // Relation to ProductVariant
+
+  @@index([id])
+  @@index([store_id])
+  @@index([sku])
+  @@map("products")
+}
+
+model ProductVarients {
+  id String @id @default(uuid())
+
+  sku          String @default("") @db.VarChar(255)
+  barcode      String @default("") @db.VarChar(255)
+  supplier_sku String @default("") @db.VarChar(255)
+
+  supplier_price Float @default(0)
+
+  length Float @default(0)
+  width  Float @default(0)
+  height Float @default(0)
+  weight Float @default(0)
+
+  ds_normal_price Float  @default(0)
+  ds_list_price   Float  @default(0)
+  ds_your_price   Float  @default(0)
+  quantity        BigInt @default(0)
+
+  minimum_order Int @default(0)
+
+  is_active       Boolean @default(true)
+  orderby         Int     @default(0)
+  packed_quantity Int     @default(0)
+
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id]) // Relation to Product
+
+  attributes Attribute[] @relation("VarientAttributes")
+
+  attribute_values AttributeValue[] @relation("VarientAttributeValues")
+
+  @@index([id])
+  @@map("product_varients")
+}
+
+model ProductImages {
+  id         String  @id @default(uuid())
+  image      String
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id])
+}
+
+model Supplier {
+  id          String    @id @default(uuid())
+  name        String    @db.Text
+  description String?   @db.Text
+  logo        String    @default("")
+  is_active   Boolean   @default(true)
+  is_default  Boolean   @default(true)
+  website     String    @default("")
+  reg_no      String    @default("")
+  vat_no      String    @default("")
+  store_id    String
+  store       Store     @relation(fields: [store_id], references: [id]) // Relation to Store
+  Product     Product[]
+
+  @@index([id])
+  @@index([store_id])
+  @@map("suppliers")
+}
 
 enum Role {
   SUPERADMIN
@@ -429,4 +524,9 @@ enum Gender {
   MALE
   FEMALE
   RATHER_NOT_SAY
+}
+
+enum PackedAs {
+  PAIR
+  PEICES
 }
